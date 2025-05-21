@@ -1,0 +1,68 @@
+{% extends "barter/base.html" %}
+{% block title %}Бартер Редактирование{% endblock %}
+{% block content %}
+
+{% load static %}
+<style>
+  .post-detail-image {
+    width: 100%;
+    max-height: 400px;
+    object-fit: cover;
+    border-radius: 0.5rem;
+  }
+
+  .post-meta {
+    color: #6c757d;
+    font-size: 0.9rem;
+  }
+
+  .post-content {
+    margin-top: 1rem;
+    white-space: pre-line;
+  }
+</style>
+
+
+
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'barter:home' %}">Главная</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">{{ post.title }}</li>
+                </ol>
+            </nav>
+            
+            <div class="card shadow-sm">
+                {% if post.image_url %}
+                <img src="{{ post.image_url.url }}" alt="{{ post.title }}" class="post-detail-image">
+                {% endif %}
+                <div class="card-body">
+                    <h1 class="card-title">{{ post.title }}</h1>
+                    <p class="post-meta mb-3">
+                        Загружено: {{ post.updated|date:"d.m.Y H:i" }} |
+                        Автор: {{ post.author }}
+                    </p>
+                    <div class="post-content">
+                        {{ post.description|linebreaks }}
+                        </div>
+                            {% if request.user == post.author %}
+                                <div class="mt-4 d-flex gap-2">
+                                    <a href="#" class="btn btn-primary">Редактировать</a>
+                                    <a href="#" class="btn btn-danger">Удалить</a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+    
+{% endblock %}

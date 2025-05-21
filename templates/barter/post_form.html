@@ -1,0 +1,7 @@
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">
+        {% if form.instance.pk %}Сохранить{% else %}Добавить{% endif %}
+    </button>
+</form>

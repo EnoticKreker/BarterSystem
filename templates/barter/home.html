@@ -1,0 +1,57 @@
+{% extends "barter/base.html" %}
+{% block title %}Бартер{% endblock %}
+{% block content %}
+
+<style>
+  .post-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+  }
+  .post-description {
+    height: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .mar-a {
+    margin-bottom: 10px;
+  }
+</style>
+
+<h1>Главная страница магазина</h1>
+
+    <a href="{% url 'barter:post_add' %}" class="btn btn-sm btn-outline-primary mar-a">Добавить объявление</a>
+
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-4">
+        {% for post in posts %}
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                <a href="{{ post.get_absolute_url }}" class="text-decoration-none text-dark">
+                    {% if post.image_url %}
+                    <img src="{{ post.image_url.url }}" class="card-img-top post-image" alt="{{ post.title }}">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ post.title }}</h5>
+                        <p class="card-text small text-muted">
+                            Загружено: {{ post.updated|date:"d.m.Y H:i" }}<br>
+                            Автор: {{ post.author }}
+                        </p>
+                        <div class="post-description">
+                            {{ post.description|truncatewords:30|linebreaks }}
+                        </div>
+                    
+                    </div>
+                </a>
+                {% if request.user == post.author %}
+                    <div class="card-footer d-flex justify-content-between">
+                        <a href="{% url 'barter:post_edit' year=post.created.year month=post.created.month day=post.created.day post=post.slug %}" class="btn btn-sm btn-outline-primary">Редактировать</a>
+                        <a href="#" class="btn btn-sm btn-outline-danger">Удалить</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+{% endblock %}
