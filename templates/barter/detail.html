@@ -49,10 +49,22 @@
                     <div class="post-content">
                         {{ post.description|linebreaks }}
                         </div>
+                            {% if request.user != post.author %}
+                                {% if check_offer %}
+                                    Уже предложено
+                                {% else %}
+                                    <a href="{% url 'barter:create_offer' post.id %}" class="btn btn-primary">Обменяться</a>
+                                {% endif %}
+                            {% endif %}
                             {% if request.user == post.author %}
                                 <div class="mt-4 d-flex gap-2">
-                                    <a href="#" class="btn btn-primary">Редактировать</a>
-                                    <a href="#" class="btn btn-danger">Удалить</a>
+                                    <a href="{% url 'barter:post_edit' year=post.created.year month=post.created.month day=post.created.day post=post.slug %}" class="btn btn-outline-primary">Редактировать</a>
+                                    <form method="post" id="postForm" action="{% url 'barter:post_delete' post.pk %}" style="display:inline;">
+                                        {% csrf_token %}
+                                    </form>
+                                    <button type="submit" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmModal">
+                                        Удалить
+                                    </button>
                                 </div>
                             {% endif %}
                         </div>
@@ -61,8 +73,16 @@
             </div>
         </div>
     </div>
-
 </div>
 
+{% include "barter/confirm_modal.html" with title="Подтверждение" message="Вы уверены, что хотите удалить пост ?" %}
+
+
+<script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+<script>
+  document.getElementById('confirmSubmitBtn').addEventListener('click', function () {
+    document.getElementById('postForm').submit();
+  });
+</script>
     
 {% endblock %}

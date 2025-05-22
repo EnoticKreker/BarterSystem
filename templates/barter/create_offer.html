@@ -1,0 +1,113 @@
+{% extends "barter/base.html" %}
+{% load static %}
+{% load widget_tweaks %}
+{% block title %}Обмен{% endblock %}
+{% block content %}
+
+<style>
+  .post-detail-image {
+    width: 100%;
+    max-height: 400px;
+    object-fit: cover;
+    border-radius: 0.5rem;
+  }
+
+  .post-meta {
+    color: #6c757d;
+    font-size: 0.9rem;
+  }
+
+  .post-content {
+    margin-top: 1rem;
+    white-space: pre-line;
+  }
+</style>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'barter:home' %}">Главная</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Создание обмена</li>
+                </ol>
+            </nav>
+
+            <div style="display: flex; gap: 40px;">
+                <div style="flex: 1;">
+                    <h3>Ваш товар:</h3>
+                    <form method="post" enctype="multipart/form-data" id="postForm">
+                        {% csrf_token %}
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {{ form.non_field_errors }}
+                            </div>
+                        {% endif %}
+                        {% for field in form %}
+                            <div class="mb-3">
+                                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                                {{ field|add_class:"form-control" }}
+                                {% if field.help_text %}
+                                    <div class="form-text">{{ field.help_text }}</div>
+                                {% endif %}
+                                {% for error in field.errors %}
+                                    <div class="text-danger">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endfor %}
+                        {% if form.instance.image_url %}
+                        <div class="mb-3 text-center">
+                            <p><strong>Изображение на данный момент:</strong></p>
+                            <img src="{{ form.instance.image_url.url }}" alt="Текущее изображение" class="img-fluid rounded shadow-sm" style="max-height: 300px;">
+                        </div>
+                        {% endif %}
+                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#confirmModal">
+                            Отправить предложение
+                        </button>
+                    </form>
+                </div>
+
+                <div class="col">
+                    <div class="card h-100 shadow-sm">
+                        <a href="{{ target_post.get_absolute_url }}" class="text-decoration-none text-dark">
+                            {% if post.image_url %}
+                                <img src="{{ target_post.image_url.url }}" class="card-img-top post-image" alt="{{ post.title }}">
+                            {% else %}
+                                <svg class="bd-placeholder-img card-img-top" width="100%" height="225" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Thumbnail" preserveAspectRatio="xMidYMid slice" focusable="false">
+                                    <title>Placeholder</title>
+                                    <rect width="100%" height="100%" fill="#55595c"/>
+                                    <text x="50%" y="50%" fill="#eceeef" dy=".3em">
+                                        Thumbnail
+                                    </text>
+                                </svg>
+                            {% endif %}
+                            <div class="card-body">
+                                <h5 class="card-title">{{ target_post.title }}</h5>
+                                <p class="card-text small text-muted">
+                                    Загружено: {{ target_post.updated|date:"d.m.Y H:i" }}<br>
+                                    Автор: {{ target_post.author }}
+                                </p>
+                                <div class="post-description">
+                                    {{ target_post.description|truncatewords:30|linebreaks }}
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% include "barter/confirm_modal.html" with title="Подтверждение" %}
+
+<script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+<script>
+  document.getElementById('confirmSubmitBtn').addEventListener('click', function () {
+    document.getElementById('postForm').submit();
+  });
+</script>
+
+{% endblock %}

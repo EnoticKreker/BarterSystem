@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Post
+from .models import ExchangeProposal as Offer, Post
 # Register your models here.
 
 
@@ -13,4 +13,6 @@ class PostAdmin(admin.ModelAdmin):
     date_hierarchy = 'created'
     ordering = ['status', 'created']
     show_facets = admin.ShowFacets.ALWAYS
+
+admin.site.register(Offer)
     
