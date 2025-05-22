@@ -1,6 +1,7 @@
 {% extends "barter/base.html" %}
 {% block title %}Бартер{% endblock %}
 {% block content %}
+{% load static %}
 
 <style>
   .post-image {
@@ -19,39 +20,85 @@
   }
 </style>
 
-<h1>Главная страница магазина</h1>
 
-    <a href="{% url 'barter:post_add' %}" class="btn btn-sm btn-outline-primary mar-a">Добавить объявление</a>
+<div class="album py-5 bg-light">
+    <div class="container">
+        <h1>Главная страница магазина</h1>
 
-    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-4">
-        {% for post in posts %}
-        <div class="col">
-            <div class="card h-100 shadow-sm">
-                <a href="{{ post.get_absolute_url }}" class="text-decoration-none text-dark">
-                    {% if post.image_url %}
-                    <img src="{{ post.image_url.url }}" class="card-img-top post-image" alt="{{ post.title }}">
-                    {% endif %}
-                    <div class="card-body">
-                        <h5 class="card-title">{{ post.title }}</h5>
-                        <p class="card-text small text-muted">
-                            Загружено: {{ post.updated|date:"d.m.Y H:i" }}<br>
-                            Автор: {{ post.author }}
-                        </p>
-                        <div class="post-description">
-                            {{ post.description|truncatewords:30|linebreaks }}
-                        </div>
-                    
-                    </div>
-                </a>
-                {% if request.user == post.author %}
-                    <div class="card-footer d-flex justify-content-between">
-                        <a href="{% url 'barter:post_edit' year=post.created.year month=post.created.month day=post.created.day post=post.slug %}" class="btn btn-sm btn-outline-primary">Редактировать</a>
-                        <a href="#" class="btn btn-sm btn-outline-danger">Удалить</a>
-                    </div>
-                {% endif %}
+        <form method="get" class="mb-4">
+            <div class="row g-3">
+                <div class="col-md-3">
+                {{ form.search_title.label_tag }}
+                {{ form.search_title }}
+                </div>
+                <div class="col-md-3">
+                {{ form.search_description.label_tag }}
+                {{ form.search_description }}
+                </div>
+                <div class="col-md-3">
+                {{ form.category.label_tag }}
+                {{ form.category }}
+                </div>
+                <div class="col-md-3">
+                {{ form.status.label_tag }}
+                {{ form.status }}
+                </div>
             </div>
+            <button type="submit" class="btn btn-primary mt-3">Фильтровать</button>
+        </form>
+
+        <a href="{% url 'barter:post_add' %}" class="btn btn-sm btn-outline-primary mar-a">Добавить объявление</a>
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+            {% for post in posts %}
+                <div class="col">
+                    <div class="card h-100 shadow-sm">
+                        <a href="{{ post.get_absolute_url }}" class="text-decoration-none text-dark">
+                            {% if post.image_url %}
+                                <img src="{{ post.image_url.url }}" class="card-img-top post-image" alt="{{ post.title }}">
+                            {% else %}
+                                <svg class="bd-placeholder-img card-img-top" width="100%" height="225" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Thumbnail" preserveAspectRatio="xMidYMid slice" focusable="false">
+                                    <title>Placeholder</title>
+                                    <rect width="100%" height="100%" fill="#55595c"/>
+                                    <text x="50%" y="50%" fill="#eceeef" dy=".3em">
+                                        Thumbnail
+                                    </text>
+                                </svg>
+                            {% endif %}
+                            <div class="card-body">
+                                <h5 class="card-title">{{ post.title }}</h5>
+                                <p class="card-text small text-muted">
+                                    Загружено: {{ post.updated|date:"d.m.Y H:i" }}<br>
+                                    Автор: {{ post.author }}
+                                </p>
+                                <div class="post-description">
+                                    {{ post.description|truncatewords:30|linebreaks }}
+                                </div>
+                            
+                            </div>
+                        </a>
+                        {% if request.user == post.author %}
+                            <div class="card-footer d-flex justify-content-between">
+                                <a href="{% url 'barter:post_edit' year=post.created.year month=post.created.month day=post.created.day post=post.slug %}" class="btn btn-sm btn-outline-primary">Редактировать</a>
+                                <a href="#" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#confirmModal">Удалить</a>
+                            </div>
+                            <form method="post" id="postForm" action="{% url 'barter:post_delete' post.pk %}" style="display:inline;">
+                                {% csrf_token %}
+                            </form>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
         </div>
-        {% endfor %}
+        {% include "pagination.html" with page=posts %}
     </div>
+</div>
+
+{% include "barter/confirm_modal.html" with title="Подтверждение" message="Вы уверены, что хотите удалить пост ?" %}
+
+<script>
+    document.getElementById('confirmSubmitBtn').addEventListener('click', function () {
+        document.getElementById('postForm').submit();
+    });
+</script>
 
 {% endblock %}

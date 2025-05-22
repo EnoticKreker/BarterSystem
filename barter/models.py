@@ -14,14 +14,15 @@ class Post(models.Model):
         SECOND_HAND = 'SH', 'б/у'
         NEW = 'NW', 'Новый'
     
-    title = models.CharField(max_length=250)
+    title = models.CharField(verbose_name="Название", max_length=250)
     slug = models.SlugField(max_length=250, unique_for_date='created')
-    description = models.TextField()
-    category = models.CharField(max_length=250)
-    image_url = models.ImageField(upload_to='barter/', blank=True, null=True)
+    description = models.TextField(verbose_name="Описание")
+    category = models.CharField(verbose_name="Категория", max_length=250)
+    image_url = models.ImageField(verbose_name="Изображение", upload_to='barter/', blank=True, null=True)
     created  = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     status = models.CharField(
+        verbose_name="Состояние",
         max_length=2,
         choices=StatusProduct,
         default=StatusProduct.NEW

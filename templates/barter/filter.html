@@ -1,0 +1,35 @@
+<form method="get" class="mb-4">
+    <div class="row g-3">
+        <div class="col-md-3">
+            {{ form.search_title.label_tag }}
+            {{ form.search_title }}
+        </div>
+        <div class="col-md-3">
+            {{ form.search_description.label_tag }}
+            {{ form.search_description }}
+        </div>
+        <div class="col-md-3">
+            {{ form.sort_category.label_tag }}
+            {{ form.sort_category }}
+        </div>
+        <div class="col-md-3">
+            {{ form.sort_status.label_tag }}
+            {{ form.sort_status }}
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary mt-3">Фильтровать</button>
+</form>
+
+<hr>
+
+<div>
+    {% for product in products %}
+        <div>
+            <h5>{{ product.title }}</h5>
+            <p>{{ product.description }}</p>
+            <small>Категория: {{ product.category.name }} | Статус: {{ product.get_status_display }}</small>
+        </div>
+    {% empty %}
+        <p>Товары не найдены.</p>
+    {% endfor %}
+</div>
