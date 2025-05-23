@@ -1,11 +1,27 @@
 from django import forms
-from .models import Post
+from .models import ExchangeProposal as Offer, Post
 
 class PostForm(forms.ModelForm):
     class Meta:
         model = Post
         fields = ['title', 'description', 'category', 'image_url', 'status']
         
+
+class OfferForm(forms.ModelForm):
+    class Meta:
+        model = Offer
+        fields = ['ad_sender_id', 'comment']
+        widgets = {
+            'comment': forms.Textarea(attrs={'rows': 3}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        if user:
+            # Предлагаем только посты текущего пользователя
+            self.fields['ad_sender_id'].queryset = Post.objects.filter(author=user)
+
 
 class PostFilterForm(forms.Form):
     search_title = forms.CharField(

@@ -1,12 +1,13 @@
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views import View
-from .forms import PostFilterForm, PostForm
-from .models import Post
+from .forms import OfferForm, PostFilterForm, PostForm
+from .models import ExchangeProposal as Offer, Post
 from django.utils.text import slugify
 from transliterate import translit
 from django.db.models.functions import Lower
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.
 
@@ -100,3 +101,81 @@ def product_create_or_update(request, year=None, month=None, day=None, post=None
         form = PostForm(instance=instance)
 
     return render(request, 'barter/post_form.html', {'form': form})
+
+
+@login_required
+def create_offer(request, post_id):
+    target_post = get_object_or_404(Post, id=post_id)
+
+    # Предотвращаем попытку обмена с собой
+    if target_post.author == request.user:
+        return redirect(target_post.get_absolute_url())
+
+    if request.method == 'POST':
+        form = OfferForm(request.POST)
+        if form.is_valid():
+            offer = form.save(commit=False)
+            offer.ad_receiver_id = target_post
+            offer.status = Offer.StatusOffer.WAIT
+            offer.save()
+            return redirect(target_post.get_absolute_url())
+    else:
+        # Отдаем только посты текущего пользователя
+        form = OfferForm(user=request.user)
+
+    return render(request, 'barter/create_offer.html', {
+        'target_post': target_post,
+        'form': form,
+    })
+
+
+@login_required
+def my_offers(request):
+    incoming = Offer.objects.filter(ad_receiver_id__author=request.user)
+    outgoing = Offer.objects.filter(ad_sender_id__author=request.user)
+
+    return render(request, 'barter/my_offers.html', {
+        'incoming': incoming,
+        'outgoing': outgoing
+    })
+
+
+@login_required
+def accept_offer(request, offer_id):
+    offer = get_object_or_404(Offer, id=offer_id)
+
+    if offer.ad_receiver_id.author != request.user:
+        return redirect('barter:my_offers')
+
+    # Передать права на post'ы:
+    sender_post = offer.ad_sender_id
+    receiver_post = offer.ad_receiver_id
+
+    sender_user = sender_post.author
+    receiver_user = receiver_post.author
+
+    # 1. Пост, который отправитель предлагает (его товар), переходит получателю
+    sender_post.author = receiver_user
+    sender_post.save()
+
+    # 2. Пост, который получает отправитель, переходит отправителю
+    receiver_post.author = sender_user
+    receiver_post.save()
+
+    # Обновляем статус предложения
+    offer.status = Offer.StatusOffer.ACCEPTED
+    offer.save()
+    return redirect('barter:my_offers')
+
+
+@login_required
+def reject_offer(request, offer_id):
+    offer = get_object_or_404(Offer, id=offer_id)
+
+    # Только отправитель или получатель может отклонить
+    if request.user not in [offer.ad_receiver_id.author, offer.ad_sender_id.author]:
+        return redirect('barter:my_offers')
+
+    offer.status = Offer.StatusOffer.CANCEL
+    offer.save()
+    return redirect('barter:my_offers')

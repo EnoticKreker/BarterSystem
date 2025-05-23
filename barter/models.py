@@ -53,3 +53,43 @@ class Post(models.Model):
                             self.slug,
                         ]
         )
+    
+
+# 1.	Обмен предложениями:
+# o	Создание предложения обмена:
+# o	Пользователь отправляет предложение обмена, указывая:
+# o	id объявления, инициирующего предложение (ad_sender_id).
+# o	id объявления получателя (ad_receiver_id).
+# o	Комментарий (comment).
+# o	Автоматическая установка статуса предложения: «ожидает».
+# o	Обновление предложения:
+# o	Возможность изменения статуса предложения (например, «принята» или «отклонена»).
+
+
+class ExchangeProposal(models.Model):
+    class StatusOffer(models.TextChoices):
+        WAIT = 'WAIT', 'Ожидает'
+        ACCEPTED = "ACCEPTED", "Принято"
+        CANCEL = "CANCEL", "Отклонено"
+
+    ad_sender_id = models.ForeignKey(
+        'Post',
+        verbose_name="Предлагаем",
+        on_delete=models.CASCADE,
+        related_name='used_in_offers'
+    )
+    ad_receiver_id = models.ForeignKey(
+        'Post',
+        verbose_name="Получаем",
+        on_delete=models.CASCADE,
+        related_name='incoming_offers'
+    )
+    comment = models.TextField(verbose_name="Коментарий")
+    status = models.CharField(
+        verbose_name="Состояние",
+        choices=StatusOffer,
+        default=StatusOffer.WAIT
+    )
+    created_at = models.DateField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+

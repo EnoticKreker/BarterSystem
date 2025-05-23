@@ -1,0 +1,23 @@
+<h2>Предложение обмена</h2>
+
+<div style="display: flex; gap: 40px;">
+    <div style="flex: 1;">
+        <h3>Ваш товар (что предлагаете):</h3>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-success">Отправить предложение</button>
+        </form>
+    </div>
+
+    <div style="flex: 1;">
+        <h3>Выбранный товар (что хотите получить):</h3>
+        <p><strong>{{ target_post.title }}</strong></p>
+        {% if post.image_url %}
+            <img src="{{ post.image_url.url }}" alt="Фото товара">
+        {% else %}
+            <p>Нет изображения</p>
+        {% endif %}
+        <p>{{ target_post.description }}</p>
+    </div>
+</div>

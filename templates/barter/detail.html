@@ -49,6 +49,9 @@
                     <div class="post-content">
                         {{ post.description|linebreaks }}
                         </div>
+                            {% if request.user != post.author %}
+                                <a href="{% url 'barter:create_offer' post.id %}" class="btn btn-primary">Обменяться</a>
+                            {% endif %}
                             {% if request.user == post.author %}
                                 <div class="mt-4 d-flex gap-2">
                                     <a href="{% url 'barter:post_edit' year=post.created.year month=post.created.month day=post.created.day post=post.slug %}" class="btn btn-outline-primary">Редактировать</a>
