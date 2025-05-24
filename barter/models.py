@@ -6,8 +6,8 @@ from django.urls import reverse
 # Create your models here.
 
 class StatusdManager(models.Manager):
-    def get_queryset(self):
-        return super().get_queryset().filter(status=Post.StatusProduct.NEW)
+    def user_posts(self, user):
+        return self.get_queryset().filter(author = user)
 
 class Post(models.Model):
     class StatusProduct(models.TextChoices):
@@ -33,7 +33,7 @@ class Post(models.Model):
         related_name='barter_posts'
     )
     objects = models.Manager()
-    new_products = StatusdManager()
+    user_posts = StatusdManager()
     
     class Meta:
         ordering = ['-created']

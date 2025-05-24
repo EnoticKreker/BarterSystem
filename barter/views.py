@@ -1,7 +1,8 @@
+from pyexpat.errors import messages
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views import View
-from .forms import OfferForm, PostFilterForm, PostForm
+from .forms import OfferFilterForm, OfferForm, PostFilterForm, PostForm
 from .models import ExchangeProposal as Offer, Post
 from django.utils.text import slugify
 from transliterate import translit
@@ -60,10 +61,23 @@ def post_detail(request, year, month, day, post):
         created__month = month,
         created__day = day
     )
+    
+    user_posts = Post.user_posts.user_posts(request.user)
+    
+    check_offer = Offer.objects.filter(
+        ad_sender_id__in = user_posts,
+        ad_receiver_id = post,
+        status = Offer.StatusOffer.WAIT
+    ).exists()
+    
+    
     return render(
         request,
         'barter/detail.html',
-        {'post': post}
+        {
+            'post': post,
+            'check_offer': check_offer,
+        }
     )
 
 class PostDeleteView(View):
@@ -106,9 +120,24 @@ def product_create_or_update(request, year=None, month=None, day=None, post=None
 @login_required
 def create_offer(request, post_id):
     target_post = get_object_or_404(Post, id=post_id)
+    
+    user_posts = Post.user_posts.user_posts(request.user)
 
     # Предотвращаем попытку обмена с собой
     if target_post.author == request.user:
+        return redirect(target_post.get_absolute_url())
+    
+    
+    check_offer = Offer.objects.filter(
+        ad_sender_id__in = user_posts,
+        ad_receiver_id = target_post,
+        status = Offer.StatusOffer.WAIT
+    ).first()
+    
+    print(check_offer)
+    
+    if check_offer:
+        messages.warning(request, 'Вы уже отправили предложение на этот товар.')
         return redirect(target_post.get_absolute_url())
 
     if request.method == 'POST':
@@ -131,12 +160,20 @@ def create_offer(request, post_id):
 
 @login_required
 def my_offers(request):
+    form = OfferFilterForm(request.GET or None)
+
     incoming = Offer.objects.filter(ad_receiver_id__author=request.user)
     outgoing = Offer.objects.filter(ad_sender_id__author=request.user)
 
+    if form.is_valid():
+        status = form.cleaned_data.get('status')
+        if status:
+            outgoing = outgoing.filter(status=status)
+
     return render(request, 'barter/my_offers.html', {
         'incoming': incoming,
-        'outgoing': outgoing
+        'outgoing': outgoing,
+        'form': form,
     })
 
 

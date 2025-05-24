@@ -1,5 +1,6 @@
 from django import forms
 from .models import ExchangeProposal as Offer, Post
+from django.contrib.auth.models import User
 
 class PostForm(forms.ModelForm):
     class Meta:
@@ -22,6 +23,15 @@ class OfferForm(forms.ModelForm):
             # Предлагаем только посты текущего пользователя
             self.fields['ad_sender_id'].queryset = Post.objects.filter(author=user)
 
+
+class OfferFilterForm(forms.Form):
+    status = forms.ChoiceField(
+        required=False,
+        label='Статус',
+        choices=[('', 'Все статусы')] + list(Offer.StatusOffer.choices),
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+            
 
 class PostFilterForm(forms.Form):
     search_title = forms.CharField(

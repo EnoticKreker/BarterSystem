@@ -50,7 +50,11 @@
                         {{ post.description|linebreaks }}
                         </div>
                             {% if request.user != post.author %}
-                                <a href="{% url 'barter:create_offer' post.id %}" class="btn btn-primary">Обменяться</a>
+                                {% if check_offer %}
+                                    Уже предложено
+                                {% else %}
+                                    <a href="{% url 'barter:create_offer' post.id %}" class="btn btn-primary">Обменяться</a>
+                                {% endif %}
                             {% endif %}
                             {% if request.user == post.author %}
                                 <div class="mt-4 d-flex gap-2">
