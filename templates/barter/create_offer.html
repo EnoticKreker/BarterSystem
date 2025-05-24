@@ -1,23 +1,64 @@
-<h2>Предложение обмена</h2>
+{% extends "barter/base.html" %}
+{% block title %}Обмен{% endblock %}
+{% block content %}
 
-<div style="display: flex; gap: 40px;">
-    <div style="flex: 1;">
-        <h3>Ваш товар (что предлагаете):</h3>
-        <form method="post">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit" class="btn btn-success">Отправить предложение</button>
-        </form>
-    </div>
+{% load static %}
 
-    <div style="flex: 1;">
-        <h3>Выбранный товар (что хотите получить):</h3>
-        <p><strong>{{ target_post.title }}</strong></p>
-        {% if post.image_url %}
-            <img src="{{ post.image_url.url }}" alt="Фото товара">
-        {% else %}
-            <p>Нет изображения</p>
-        {% endif %}
-        <p>{{ target_post.description }}</p>
+<style>
+  .post-detail-image {
+    width: 100%;
+    max-height: 400px;
+    object-fit: cover;
+    border-radius: 0.5rem;
+  }
+
+  .post-meta {
+    color: #6c757d;
+    font-size: 0.9rem;
+  }
+
+  .post-content {
+    margin-top: 1rem;
+    white-space: pre-line;
+  }
+</style>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'barter:home' %}">Главная</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Создание обмена</li>
+                </ol>
+            </nav>
+
+            <h2>Предложение обмена</h2>
+
+            <div style="display: flex; gap: 40px;">
+                <div style="flex: 1;">
+                    <h3>Ваш товар (что предлагаете):</h3>
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                        <button type="submit" class="btn btn-success">Отправить предложение</button>
+                    </form>
+                </div>
+
+                <div style="flex: 1;">
+                    <h3>Выбранный товар (что хотите получить):</h3>
+                    <p><strong>{{ target_post.title }}</strong></p>
+                    {% if post.image_url %}
+                        <img src="{{ post.image_url.url }}" alt="Фото товара">
+                    {% else %}
+                        <p>Нет изображения</p>
+                    {% endif %}
+                    <p>{{ target_post.description }}</p>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
+
+{% endblock %}

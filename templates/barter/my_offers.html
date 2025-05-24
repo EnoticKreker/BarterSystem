@@ -1,37 +1,83 @@
-<h2>Мои предложения</h2>
+{% extends "barter/base.html" %}
+{% block title %}Обмен{% endblock %}
+{% block content %}
 
-<h3>📤 Отправленные</h3>
-<ul>
-  {% for offer in outgoing %}
-    <li>
-      Вы предложили обменять 
-      <strong>{{ offer.ad_sender_id.title }}</strong>
-      на 
-      <strong>{{ offer.ad_receiver_id.title }}</strong>
-      — Статус: {{ offer.get_status_display }}
-      {% if offer.status == 'WAIT' %}
-        <a href="{% url 'barter:reject_offer' offer.id %}">Отклонить</a>
-      {% endif %}
-    </li>
-  {% empty %}
-    <li>Нет отправленных предложений</li>
-  {% endfor %}
-</ul>
+{% load static %}
+<style>
+  .post-detail-image {
+    width: 100%;
+    max-height: 400px;
+    object-fit: cover;
+    border-radius: 0.5rem;
+  }
 
-<h3>📥 Полученные</h3>
-<ul>
-  {% for offer in incoming %}
-    <li>
-      <strong>{{ offer.ad_sender_id.author.username }}</strong> предлагает обменять 
-      <strong>{{ offer.ad_sender_id.title }}</strong> на 
-      <strong>{{ offer.ad_receiver_id.title }}</strong>
-      — Статус: {{ offer.get_status_display }}
-      {% if offer.status == 'WAIT' %}
-        <a href="{% url 'barter:accept_offer' offer.id %}">Принять</a>
-        <a href="{% url 'barter:reject_offer' offer.id %}">Отклонить</a>
-      {% endif %}
-    </li>
-  {% empty %}
-    <li>Нет входящих предложений</li>
-  {% endfor %}
-</ul>
+  .post-meta {
+    color: #6c757d;
+    font-size: 0.9rem;
+  }
+
+  .post-content {
+    margin-top: 1rem;
+    white-space: pre-line;
+  }
+</style>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item"><a href="{% url 'barter:home' %}">Главная</a></li>
+              <li class="breadcrumb-item active" aria-current="page">Обмен</li>
+            </ol>
+          </nav>
+
+          <h2>Мои предложения</h2>
+
+          <h3>📤 Отправленные</h3>
+          <ul>
+            {% for offer in outgoing %}
+              <li>
+                Вы предложили обменять
+                <a href="{{ offer.ad_sender_id.get_absolute_url }}" class="text-dark">
+                  <strong>{{ offer.ad_sender_id.title }}</strong>
+                </a>
+                на 
+                <a href="{{ offer.ad_receiver_id.get_absolute_url }}" class="text-dark">
+                  <strong>{{ offer.ad_receiver_id.title }}</strong>
+                </a>
+                — Статус: {{ offer.get_status_display }}
+                {% if offer.status == 'WAIT' %}
+                  <a href="{% url 'barter:reject_offer' offer.id %}">Отклонить</a>
+                {% endif %}
+              </li>
+            {% empty %}
+              <li>Нет отправленных предложений</li>
+            {% endfor %}
+          </ul>
+
+          <h3>📥 Полученные</h3>
+          <ul>
+            {% for offer in incoming %}
+              <li>
+                <strong>{{ offer.ad_sender_id.author.username }}</strong> предлагает обменять 
+                <strong>{{ offer.ad_sender_id.title }}</strong> на 
+                <strong>{{ offer.ad_receiver_id.title }}</strong>
+                — Статус: {{ offer.get_status_display }}
+                {% if offer.status == 'WAIT' %}
+                  <a href="{% url 'barter:accept_offer' offer.id %}">Принять</a>
+                  <a href="{% url 'barter:reject_offer' offer.id %}">Отклонить</a>
+                {% endif %}
+              </li>
+            {% empty %}
+              <li>Нет входящих предложений</li>
+            {% endfor %}
+          </ul>
+        
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
