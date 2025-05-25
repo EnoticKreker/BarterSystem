@@ -73,7 +73,7 @@
           ```bash
           python3 manage.py shell
           ```
-        - Вставить следующие команды (Можно построчно или целиком):
+        - Вставить следующие команды (Построчно):
             ```
             from django.contrib.auth.models import User
             user = User.objects.create_user(username='testuser', password='12345')
