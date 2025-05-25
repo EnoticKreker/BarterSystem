@@ -81,7 +81,7 @@ def post_detail(request, year, month, day, post):
     )
 
 class PostDeleteView(View):
-    def post(self, request, pk):
+    def post(self, pk):
         post = get_object_or_404(Post, pk=pk)
         post.delete()
         return redirect('barter:home')
@@ -115,7 +115,6 @@ def product_create_or_update(request, year=None, month=None, day=None, post=None
         form = PostForm(instance=instance)
 
     return render(request, 'barter/post_form.html', {'form': form})
-
 
 @login_required
 def create_offer(request, post_id):
@@ -169,6 +168,7 @@ def my_offers(request):
         status = form.cleaned_data.get('status')
         if status:
             outgoing = outgoing.filter(status=status)
+            incoming = incoming.filter(status=status)
 
     return render(request, 'barter/my_offers.html', {
         'incoming': incoming,
@@ -184,22 +184,18 @@ def accept_offer(request, offer_id):
     if offer.ad_receiver_id.author != request.user:
         return redirect('barter:my_offers')
 
-    # Передать права на post'ы:
     sender_post = offer.ad_sender_id
     receiver_post = offer.ad_receiver_id
 
     sender_user = sender_post.author
     receiver_user = receiver_post.author
 
-    # 1. Пост, который отправитель предлагает (его товар), переходит получателю
     sender_post.author = receiver_user
     sender_post.save()
 
-    # 2. Пост, который получает отправитель, переходит отправителю
     receiver_post.author = sender_user
     receiver_post.save()
 
-    # Обновляем статус предложения
     offer.status = Offer.StatusOffer.ACCEPTED
     offer.save()
     return redirect('barter:my_offers')
@@ -209,7 +205,6 @@ def accept_offer(request, offer_id):
 def reject_offer(request, offer_id):
     offer = get_object_or_404(Offer, id=offer_id)
 
-    # Только отправитель или получатель может отклонить
     if request.user not in [offer.ad_receiver_id.author, offer.ad_sender_id.author]:
         return redirect('barter:my_offers')
 

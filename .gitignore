@@ -2,3 +2,4 @@ db.sqlite3
 barter/__pycache__/
 barter/migrations/
 BarterSystem/__pycache__/
+barter/tests/__pycache__/
