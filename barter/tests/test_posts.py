@@ -60,7 +60,7 @@ def test_edit_post(client):
     assert post.title == 'Новое название'
     assert post.description == 'Новое описание товара'
     
-    
+
 @pytest.mark.django_db
 def test_del_post(client):
     user = User.objects.create(username='testuser', password='pass')

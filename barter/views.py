@@ -81,7 +81,7 @@ def post_detail(request, year, month, day, post):
     )
 
 class PostDeleteView(View):
-    def post(self, pk):
+    def post(self, request, pk):
         post = get_object_or_404(Post, pk=pk)
         post.delete()
         return redirect('barter:home')
