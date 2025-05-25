@@ -86,6 +86,7 @@ class PostDeleteView(View):
         post.delete()
         return redirect('barter:home')
 
+@login_required
 def product_create_or_update(request, year=None, month=None, day=None, post=None):
     if post:
         instance = get_object_or_404(
